@@ -17,7 +17,7 @@ export class AuthController {
     @Post('login')
     async login(@Body() loginDto: LoginDTO): Promise<any> {
         const user = await this.authService.login(loginDto);
-        const token = this.authService.generateToken(user.userId, user.isAdmin);
+        const token = await this.authService.generateToken(user.userId, user.isAdmin);
         const {password, ...userWithoutPassword} = user;
         return {user: userWithoutPassword, token}
     }

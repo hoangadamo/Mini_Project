@@ -20,7 +20,7 @@ export class AuthService {
     private usersRepository: Repository<User>,
   ) {}
 
-  generateToken(userId: number, isAdmin: boolean): string {
+  async generateToken(userId: number, isAdmin: boolean): Promise<string> {
     const payload = { id: userId, isAdmin };
     const token = this.jwtService.sign(payload);
     return token;
