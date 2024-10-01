@@ -22,10 +22,7 @@ export class AuthService {
 
   generateToken(userId: number, isAdmin: boolean): string {
     const payload = { id: userId, isAdmin };
-    const token = this.jwtService.sign(payload, {
-      secret: process.env.JWT_ACCESS_KEY || 'ahbcghsgcvtrsa',
-      expiresIn: '15d',
-    });
+    const token = this.jwtService.sign(payload);
     return token;
   }
 
@@ -53,8 +50,7 @@ export class AuthService {
       isAdmin: false,
     });
     await this.usersRepository.save(newUser);
-    const result = { ...newUser, password };
-    return result;
+    return newUser;
   }
 
   async login(loginDto: LoginDTO): Promise<User> {
