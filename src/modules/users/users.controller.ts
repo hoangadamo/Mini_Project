@@ -37,9 +37,14 @@ export class UsersController {
   }
 
   @Put(':id')
-  async updateUser(@Param('id') id: number, @Body() updateUserDto: UpdateUserDTO): Promise<any> {
+  async updateUser(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDTO): Promise<any> {
     const user = await this.usersService.updateUser(id, updateUserDto);
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
+  }
+
+  @Delete(':id')
+  async deleteUser(@Param('id', ParseIntPipe) id: number): Promise<any> {
+    return await this.usersService.deleteUser(id);
   }
 }
