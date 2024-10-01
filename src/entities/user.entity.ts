@@ -1,6 +1,5 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { Book } from "./book.entity";
-import { MinLength } from "@nestjs/class-validator";
 
 @Entity({name: 'users'})
 @Unique(['username', 'email'])
@@ -9,8 +8,7 @@ export class User {
     userId: number;
 
     @Column()
-    @MinLength(5)
-    username: string; // unique, required
+    username: string;
 
     @Column()
     email: string;

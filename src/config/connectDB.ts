@@ -11,7 +11,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
             password:'root',
             database: 'book-management',
             entities:[__dirname + '/../**/*.entity.{js,ts}'],
-            synchronize: false
+            synchronize: true
         }),
     ]
 })

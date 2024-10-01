@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Category } from "./category.entity";
 import { User } from "./user.entity";
 
@@ -11,9 +11,6 @@ export class Book {
     title: string;
 
     @Column()
-    genre: string;
-
-    @Column()
     publishedDate: Date;
 
     @Column()
@@ -23,7 +20,7 @@ export class Book {
     @JoinColumn({name: 'userId'}) // set name to be userId
     user: User
 
-    @ManyToOne(type => Category, category => category.books)
-    @JoinColumn({name: 'categoryId'})
-    category: Category
+    @ManyToMany(() => Category, (category) => category.books)
+    @JoinTable()
+    categories: Category[]
 }
