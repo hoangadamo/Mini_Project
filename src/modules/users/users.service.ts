@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
@@ -19,8 +19,12 @@ export class UsersService {
       query.andWhere('user.username ILIKE :search OR user.email ILIKE :search', { search: `%${search}%` });
     }
     // filter
+    const allowedFilterKeys = ['isAdmin', 'username', 'email'];
     if (filter) {
       Object.keys(filter).forEach(key => {
+        if (!allowedFilterKeys.includes(key)) {
+          throw new BadRequestException(`Invalid filter key: ${key}`);
+        }
         if (filter[key] !== undefined && filter[key] !== null) {
           query.andWhere(`user.${key} = :${key}`, { [key]: filter[key] });
         }
@@ -67,6 +71,6 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    return 'delete successfully';
+    return 'Delete successfully';
   }
 }
