@@ -5,12 +5,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { RegisterDTO } from './dto/register.dto';
+import { RegisterDTO } from './dto/auth.dto'; 
 import { User } from 'src/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { LoginDTO } from './dto/login.dto';
+import { LoginDTO } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -56,7 +56,7 @@ export class AuthService {
   async login(loginDto: LoginDTO): Promise<User> {
     const { username, password } = loginDto;
     const user = await this.usersRepository.findOne({
-      where: [{ username: username}],
+      where: [{ username: username }],
     });
     if (!user) {
       throw new NotFoundException('invalid username');
