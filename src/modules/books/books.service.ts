@@ -1,30 +1,50 @@
-import { Injectable } from '@nestjs/common';
-import { CreateBookDto } from './dto/create-book.dto';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { CreateBookDto } from './dto/book.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Book } from 'src/entities/book.entity';
 import { Repository } from 'typeorm';
+import { User } from 'src/entities/user.entity';
+import { Category } from 'src/entities/category.entity';
 
 @Injectable()
 export class BooksService {
-
   constructor(
     @InjectRepository(Book)
-    private usersRespository: Repository<Book>
-  ){}
+    private booksRepository: Repository<Book>,
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+    @InjectRepository(Category)
+    private categoriesRepository: Repository<Category>,
+  ) {}
 
-  create(createBookDto: CreateBookDto) {
-    return 'This action adds a new book';
-  }
+  async createBook(payload: CreateBookDto, userId: number): Promise<Book> {
+    const { title, publishedDate, categoryIds } = payload;
+    const existingBook = await this.booksRepository.findOne({
+      where: [{ title: title }],
+    });
+    if (existingBook) {
+      throw new BadRequestException('book already exists');
+    }
 
-  findAll() {
-    return `This action returns all books`;
-  }
+    // Fetch the User entity from the database
+    const user = await this.usersRepository.findOneBy({ userId });
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} book`;
-  }
+    const categories = await this.categoriesRepository.findByIds(categoryIds);
 
-  remove(id: number) {
-    return `This action removes a #${id} book`;
+    const newBook = this.booksRepository.create({
+      // error
+      title,
+      publishedDate,
+      isApproved: false,
+      user: user,
+      categories,
+    });
+    await this.booksRepository.save(newBook);
+    return newBook;
   }
 }
+
+

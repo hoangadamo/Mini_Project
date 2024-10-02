@@ -6,10 +6,22 @@ import { CategoriesModule } from './modules/categories/categories.module';
 import { UsersModule } from './modules/users/users.module';
 import { BooksModule } from './modules/books/books.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { JwtMiddleware } from './middlewares/jwt.middleware';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
-  imports: [connectDB, UsersModule, BooksModule, CategoriesModule, AuthModule],
+  imports: [
+    JwtModule.register({
+      secret: process.env.JWT_ACCESS_KEY || 'ahbcghsgcvtrsa',
+      signOptions: { expiresIn: '15d' },
+    }),
+    connectDB,
+    UsersModule,
+    BooksModule,
+    CategoriesModule,
+    AuthModule,
+  ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [JwtMiddleware, AppService],
 })
 export class AppModule {}

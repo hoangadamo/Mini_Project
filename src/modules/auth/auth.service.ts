@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { RegisterDTO } from './dto/auth.dto'; 
+import { RegisterDTO } from './dto/auth.dto';
 import { User } from 'src/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -22,7 +22,9 @@ export class AuthService {
 
   async generateToken(userId: number, isAdmin: boolean): Promise<string> {
     const payload = { id: userId, isAdmin };
-    const token = this.jwtService.sign(payload);
+    const token = this.jwtService.sign(payload, {
+      secret: process.env.JWT_ACCESS_KEY,
+    });
     return token;
   }
 

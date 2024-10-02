@@ -1,4 +1,10 @@
-import { Injectable, NestMiddleware, UnauthorizedException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NestMiddleware,
+  UnauthorizedException,
+  ForbiddenException,
+} from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
 
@@ -8,19 +14,26 @@ export interface CustomRequest extends Request {
 
 @Injectable()
 export class JwtMiddleware implements NestMiddleware {
+  constructor(private readonly jwtService: JwtService) {}
+
   async use(req: CustomRequest, res: Response, next: NextFunction) {
     const token = req.headers.token as string;
     if (token) {
       const accessToken = token.split(' ')[1];
-      jwt.verify(accessToken, process.env.JWT_ACCESS_KEY, (err, user) => {
-        if (err) {
-          throw new ForbiddenException("Token is not valid");
-        }
+      try {
+        const user = this.jwtService.verify(accessToken, {
+          secret: process.env.JWT_ACCESS_KEY,
+        });
         req.user = user;
         next();
-      });
+      } catch (error) {
+        console.log(error);
+        throw new ForbiddenException('Token is not valid');
+      }
     } else {
       throw new UnauthorizedException("You're not authenticated");
     }
   }
 }
+
+// JsonWebTokenError: invalid signature
