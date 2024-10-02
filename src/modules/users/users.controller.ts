@@ -11,7 +11,7 @@ import {
   ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { UpdateUserDTO } from './dto/update-user.dto';
+import { UpdateUserDTO } from './dto/user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -22,8 +22,10 @@ export class UsersController {
   async getAllUsers(
     @Query('page') page: number,
     @Query('limit') limit: number,
+    @Query('search') search: string,
+    @Query('filter') filter: any,
   ): Promise<any> {
-    const users = await this.usersService.getAllUsers(page, limit);
+    const users = await this.usersService.getAllUsers(page, limit, search, filter);
     return users;
   }
 
@@ -36,7 +38,10 @@ export class UsersController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Put(':id')
-  async updateUser(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDTO): Promise<any> {
+  async updateUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateUserDto: UpdateUserDTO,
+  ): Promise<any> {
     const user = await this.usersService.updateUser(id, updateUserDto);
     return user;
   }
