@@ -9,6 +9,8 @@ import {
   Query,
   ParseIntPipe,
   Put,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDTO } from './dto/update-user.dto';
@@ -17,30 +19,28 @@ import { UpdateUserDTO } from './dto/update-user.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @UseInterceptors(ClassSerializerInterceptor) // not return password in response
   @Get()
   async getAllUsers(
     @Query('page') page: number,
     @Query('limit') limit: number,
   ): Promise<any> {
     const users = await this.usersService.getAllUsers(page, limit);
-    return users.map((user) => {
-      const { password, ...userWithoutPassword } = user;
-      return userWithoutPassword;
-    });
+    return users;
   }
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get(':id')
   async getUserDetails(@Param('id', ParseIntPipe) id: number): Promise<any> {
     const user = await this.usersService.getUserDetails(id);
-    const { password, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+    return user;
   }
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @Put(':id')
   async updateUser(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDTO): Promise<any> {
     const user = await this.usersService.updateUser(id, updateUserDto);
-    const { password, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+    return user;
   }
 
   @Delete(':id')
