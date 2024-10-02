@@ -6,8 +6,11 @@ export class Category {
     @PrimaryGeneratedColumn()
     categoryId: number;
 
-    @Column()
+    @Column({ unique: true })
     categoryName: string;
+
+    @Column({nullable: true})
+    description: string;
 
     @ManyToMany(() => Book, (book) => book.categories)
     books: Book[]
