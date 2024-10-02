@@ -16,7 +16,7 @@ export class UsersService {
     const query = this.usersRepository.createQueryBuilder('user');
     // search by username/email
     if (search) {
-      query.andWhere('user.username LIKE :search OR user.email LIKE :search',{search: `%${search}`});
+      query.andWhere('user.username ILIKE :search OR user.email ILIKE :search', { search: `%${search}%` });
     }
     // filter
     if (filter) {
