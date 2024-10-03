@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response, NextFunction } from 'express';
-import * as jwt from 'jsonwebtoken';
 
 export interface CustomRequest extends Request {
   user?: any;
@@ -27,7 +26,6 @@ export class JwtMiddleware implements NestMiddleware {
         req.user = user;
         next();
       } catch (error) {
-        console.log(error);
         throw new ForbiddenException('Token is not valid');
       }
     } else {
@@ -35,5 +33,3 @@ export class JwtMiddleware implements NestMiddleware {
     }
   }
 }
-
-// JsonWebTokenError: invalid signature

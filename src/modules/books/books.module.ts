@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtMiddleware } from 'src/middlewares/jwt.middleware';
 import { User } from 'src/entities/user.entity';
 import { Category } from 'src/entities/category.entity';
+import { AdminMiddleware } from 'src/middlewares/admin.middleware';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { Category } from 'src/entities/category.entity';
     }),
     TypeOrmModule.forFeature([User]),
     TypeOrmModule.forFeature([Book]),
-    TypeOrmModule.forFeature([Category])
+    TypeOrmModule.forFeature([Category]),
   ],
   controllers: [BooksController],
   providers: [JwtMiddleware, BooksService],
@@ -27,5 +28,8 @@ export class BooksModule {
     consumer
       .apply(JwtMiddleware)
       .forRoutes({ path: 'books', method: RequestMethod.ALL });
+    consumer
+      .apply(AdminMiddleware)
+      .forRoutes({ path: 'books/approved/:id', method: RequestMethod.PUT }); // fix for me
   }
 }
