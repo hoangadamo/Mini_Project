@@ -1,5 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateBookDto } from './dto/book.dto';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { CreateBookDto, GetAllBooksDTO, UpdateBookDTO } from './dto/book.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Book } from 'src/entities/book.entity';
 import { Repository } from 'typeorm';
@@ -29,7 +33,7 @@ export class BooksService {
     // Fetch the User entity from the database
     const user = await this.usersRepository.findOneBy({ userId });
     if (!user) {
-      throw new BadRequestException('User not found');
+      throw new BadRequestException('user not found');
     }
 
     const categories = await this.categoriesRepository.findByIds(categoryIds);
@@ -45,26 +49,62 @@ export class BooksService {
     return newBook;
   }
 
-  async getAllBooks(page: number, limit: number, search: string, filter: any): Promise<Book[]> {
+  async getAllBooks(payload: GetAllBooksDTO): Promise<Book[]> {
+    const { page, limit, search, isApproved, year } = payload;
     const query = this.booksRepository.createQueryBuilder('book');
-    // search by username/email
+    // search
     if (search) {
-      query.andWhere('book.username ILIKE :search OR user.email ILIKE :search', { search: `%${search}%` });
+      query.andWhere('book.title ILIKE :search', { search: `%${search}%` });
     }
     // filter
-    if (filter) {
-      Object.keys(filter).forEach(key => {
-        if (filter[key] !== undefined && filter[key] !== null) {
-          query.andWhere(`book.${key} = :${key}`, { [key]: filter[key] });
-        }
-      });
+    if (isApproved !== undefined) {
+      query.andWhere('book.isApproved = :isApproved', { isApproved });
     }
-    if (page && limit){
-      const offset = (page - 1)*limit;
+    if (year) {
+      query.andWhere('EXTRACT(YEAR FROM book.publishedDate) = :year', { year });
+    }
+
+    if (page && limit) {
+      const offset = (page - 1) * limit;
       query.limit(limit).offset(offset);
     }
     return await query.getMany();
   }
+
+  async getBookDetails(bookId: number): Promise<Book> {
+    const book = await this.booksRepository.findOneBy({ bookId });
+    if (!book) {
+      throw new NotFoundException('book not found');
+    }
+    return book;
+  }
+
+  async updateBook(bookId: number, payload: UpdateBookDTO): Promise<Book> {
+    const book = await this.getBookDetails(bookId);
+    const { title, publishedDate, categoryIds } = payload;
+    if (title) {
+      book.title = title;
+    }
+    if (publishedDate) {
+      book.publishedDate = publishedDate;
+    }
+
+    const categories = await this.categoriesRepository.findByIds(categoryIds);
+
+    if (categoryIds) {
+      book.categories = categories;
+    }
+    await this.booksRepository.save(book);
+    return book;
+  }
+
+  async deleteBook(bookId: number): Promise<string> { 
+    const book = await this.booksRepository.findOne({ where: { bookId }, relations: ['categories'] });
+    if (!book) {
+      throw new NotFoundException('Book not found');
+    }
+    await this.booksRepository.remove(book);
+    return 'delete successfully';
+  }
+  
 }
-
-

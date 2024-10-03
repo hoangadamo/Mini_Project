@@ -28,7 +28,7 @@ export class Book {
   @JoinColumn({ name: 'userId' }) // set name to be userId
   user: User;
 
-  @ManyToMany(() => Category, (category) => category.books)
+  @ManyToMany(() => Category, (category) => category.books, { cascade: true, onDelete: 'CASCADE' })
   @JoinTable()
   categories: Category[];
 }
