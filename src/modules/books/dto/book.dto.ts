@@ -18,6 +18,7 @@ export class GetAllBooksDTO extends BaseDTO {
   search?: string;
   isApproved?: boolean;
   year?: number;
+  categoryId?: number;
 }
 
 export class UpdateBookDTO {

@@ -50,7 +50,7 @@ export class BooksService {
   }
 
   async getAllBooks(payload: GetAllBooksDTO): Promise<Book[]> {
-    const { page, limit, search, isApproved, year } = payload;
+    const { page, limit, search, isApproved, year, categoryId } = payload;
     const query = this.booksRepository.createQueryBuilder('book');
     // search
     if (search) {
@@ -63,7 +63,12 @@ export class BooksService {
     if (year) {
       query.andWhere('EXTRACT(YEAR FROM book.publishedDate) = :year', { year });
     }
-
+    if (categoryId) {
+      query
+        .innerJoin('book.categories', 'category')
+        .andWhere('category.categoryId = :categoryId', { categoryId });
+    }
+    // pagination
     if (page && limit) {
       const offset = (page - 1) * limit;
       query.limit(limit).offset(offset);
@@ -89,22 +94,30 @@ export class BooksService {
       book.publishedDate = publishedDate;
     }
 
-    const categories = await this.categoriesRepository.findByIds(categoryIds);
-
-    if (categoryIds) {
+    if (categoryIds && categoryIds.length > 0) {
+      const categories = await this.categoriesRepository.findByIds(categoryIds);
       book.categories = categories;
     }
     await this.booksRepository.save(book);
     return book;
   }
 
-  async deleteBook(bookId: number): Promise<string> { 
-    const book = await this.booksRepository.findOne({ where: { bookId }, relations: ['categories'] });
+  async deleteBook(bookId: number): Promise<string> {
+    const book = await this.booksRepository.findOne({
+      where: { bookId },
+      relations: ['categories'],
+    });
     if (!book) {
       throw new NotFoundException('Book not found');
     }
     await this.booksRepository.remove(book);
     return 'delete successfully';
   }
-  
+
+  async aprroveBook(bookId: number): Promise<Book> {
+    const book = await this.getBookDetails(bookId);
+    book.isApproved = !book.isApproved;
+    await this.booksRepository.save(book);
+    return book;
+  }
 }

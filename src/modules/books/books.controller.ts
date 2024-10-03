@@ -51,4 +51,9 @@ export class BooksController {
   async deleteBook(@Param('id', ParseIntPipe) id: number){
     return  await this.booksService.deleteBook(id);
   }
+
+  @Put('/approved/:id')
+  async aprroveBook(@Param('id', ParseIntPipe) id:number){
+    return await this.booksService.aprroveBook(id);
+  }
 }
