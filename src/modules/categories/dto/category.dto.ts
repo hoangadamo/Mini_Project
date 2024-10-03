@@ -1,4 +1,5 @@
 import { IsNotEmpty, IsOptional } from "@nestjs/class-validator";
+import { BaseDTO } from "src/DTO/BaseDTO";
 
 export class CreateCategoryDTO {
     @IsNotEmpty()
@@ -14,4 +15,8 @@ export class UpdateCategoryDTO {
 
     @IsOptional()
     description: string;
+}
+
+export class GetAllCategoriesDTO extends BaseDTO{
+    search?: string;
 }

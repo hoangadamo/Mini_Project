@@ -1,8 +1,16 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from 'src/entities/category.entity';
 import { Repository } from 'typeorm';
-import { CreateCategoryDTO, UpdateCategoryDTO } from './dto/category.dto';
+import {
+  CreateCategoryDTO,
+  GetAllCategoriesDTO,
+  UpdateCategoryDTO,
+} from './dto/category.dto';
 
 @Injectable()
 export class CategoriesService {
@@ -28,54 +36,41 @@ export class CategoriesService {
     return newCategory;
   }
 
-  async getAllCategories(
-    page: number,
-    limit: number,
-    search: string,
-    filter: any,
-  ): Promise<Category[]> {
+  async getAllCategories(payload: GetAllCategoriesDTO): Promise<Category[]> {
+    const {page, limit, search} = payload;
     const query = this.categoriesRepository.createQueryBuilder('category');
     // search by category name
     if (search) {
-      query.andWhere('category.categoryName ILIKE :search', { search: `%${search}%` });
-    }
-    // filter
-
-    const allowedFilterKeys = ['categoryName', 'description'];
-
-    if (filter) {
-      Object.keys(filter).forEach(key => {
-        if (!allowedFilterKeys.includes(key)) {
-          throw new BadRequestException(`Invalid filter key: ${key}`);
-        }
-        if (filter[key] !== undefined && filter[key] !== null) {
-          query.andWhere(`category.${key} = :${key}`, { [key]: filter[key] });
-        }
+      query.andWhere('category.categoryName ILIKE :search', {
+        search: `%${search}%`,
       });
     }
     // pagination
-    if (page && limit){
-      const offset = (page - 1)*limit;
+    if (page && limit) {
+      const offset = (page - 1) * limit;
       query.limit(limit).offset(offset);
     }
     return await query.getMany();
   }
 
-  async getCategoryDetails (categoryId: number): Promise<Category>{
-    const category = await this.categoriesRepository.findOneBy({categoryId});
+  async getCategoryDetails(categoryId: number): Promise<Category> {
+    const category = await this.categoriesRepository.findOneBy({ categoryId });
     if (!category) {
       throw new NotFoundException('category not found');
     }
     return category;
   }
 
-  async updateCategory (categoryId: number, payload: UpdateCategoryDTO): Promise<Category>{
+  async updateCategory(
+    categoryId: number,
+    payload: UpdateCategoryDTO,
+  ): Promise<Category> {
     const category = await this.getCategoryDetails(categoryId);
-    const {categoryName, description} = payload;
-    if (categoryName){
+    const { categoryName, description } = payload;
+    if (categoryName) {
       category.categoryName = categoryName;
     }
-    if (description){
+    if (description) {
       category.description = description;
     }
     await this.categoriesRepository.save(category);
