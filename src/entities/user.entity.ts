@@ -18,6 +18,12 @@ export class User {
   username: string;
 
   @Column()
+  firstname: string;
+
+  @Column()
+  lastname: string;
+
+  @Column()
   email: string;
 
   @Column()
@@ -25,12 +31,12 @@ export class User {
   password: string;
 
   @Column()
+  isActive: boolean;
+
+  @Column()
   isAdmin: boolean;
 
   @OneToMany((type) => Book, (book) => book.user)
   books: Book[];
 
-//   constructor(partial: Partial<User>) {
-//     Object.assign(this, partial);
-//   }
 }

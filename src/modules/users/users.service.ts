@@ -1,8 +1,12 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
-import { UpdateUserDTO } from './dto/user.dto';
+import { GetAllUsersDTO, UpdateUserDTO } from './dto/user.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -12,26 +16,27 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async getAllUsers(page: number, limit: number, search: string, filter: any): Promise<User[]> {
+  async getAllUsers(payload: GetAllUsersDTO): Promise<User[]> {
+    const { page, limit, search, isAdmin, isActive } = payload;
     const query = this.usersRepository.createQueryBuilder('user');
-    // search by username/email
+    // search by firstname, lastname, fullname = firstname + ' ' + lastname
     if (search) {
-      query.andWhere('user.username ILIKE :search OR user.email ILIKE :search', { search: `%${search}%` });
+      query.andWhere(
+        'user.firstname ILIKE :search OR user.lastname ILIKE :search OR CONCAT(user.firstname, \' \', user.lastname) ILIKE :search',
+        { search: `%${search}%` },
+      );
     }
-    // filter
-    const allowedFilterKeys = ['isAdmin', 'username', 'email'];
-    if (filter) {
-      Object.keys(filter).forEach(key => {
-        if (!allowedFilterKeys.includes(key)) {
-          throw new BadRequestException(`Invalid filter key: ${key}`);
-        }
-        if (filter[key] !== undefined && filter[key] !== null) {
-          query.andWhere(`user.${key} = :${key}`, { [key]: filter[key] });
-        }
-      });
+    // filter by isAdmin
+    if (isAdmin !== undefined) {
+      query.andWhere('user.isAdmin = :isAdmin', { isAdmin });
     }
-    if (page && limit){
-      const offset = (page - 1)*limit;
+    // filter by isActive
+    if (isActive !== undefined){
+      query.andWhere('user.isActive= :isActive', { isActive });
+    }
+
+    if (page && limit) {
+      const offset = (page - 1) * limit;
       query.limit(limit).offset(offset);
     }
     return await query.getMany();
@@ -50,13 +55,22 @@ export class UsersService {
     updateUserDto: UpdateUserDTO,
   ): Promise<User> {
     const user = await this.getUserDetails(userId);
-    const { username, email, password } = updateUserDto;
+    const { username, firstname, lastname, email, password } = updateUserDto;
 
     if (username) {
-      user.username = updateUserDto.username;
+      user.username = username;
     }
+
+    if (firstname) {
+      user.firstname = firstname;
+    }
+
+    if (lastname) {
+      user.firstname = lastname;
+    }
+
     if (email) {
-      user.email = updateUserDto.email;
+      user.email = email;
     }
     if (password) {
       const hashed = await bcrypt.hash(updateUserDto.password, 10);

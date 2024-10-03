@@ -16,6 +16,12 @@ export class RegisterDTO {
     username: string;
 
     @IsNotEmpty()
+    firstname: string;
+
+    @IsNotEmpty()
+    lastname: string;
+
+    @IsNotEmpty()
     @IsEmail()
     email: string;
 

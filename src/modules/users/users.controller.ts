@@ -11,7 +11,7 @@ import {
   ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { UpdateUserDTO } from './dto/user.dto';
+import { GetAllUsersDTO, UpdateUserDTO } from './dto/user.dto';
 
 @Controller('users')
 export class UsersController {
@@ -19,13 +19,8 @@ export class UsersController {
 
   @UseInterceptors(ClassSerializerInterceptor) // not return password in response
   @Get()
-  async getAllUsers(
-    @Query('page') page: number,
-    @Query('limit') limit: number,
-    @Query('search') search: string,
-    @Query('filter') filter: any,
-  ): Promise<any> {
-    const users = await this.usersService.getAllUsers(page, limit, search, filter);
+  async getAllUsers(@Query() payload: GetAllUsersDTO): Promise<any> {
+    const users = await this.usersService.getAllUsers(payload);
     return users;
   }
 

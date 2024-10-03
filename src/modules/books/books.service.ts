@@ -35,7 +35,6 @@ export class BooksService {
     const categories = await this.categoriesRepository.findByIds(categoryIds);
 
     const newBook = this.booksRepository.create({
-      // error
       title,
       publishedDate,
       isApproved: false,
@@ -44,6 +43,27 @@ export class BooksService {
     });
     await this.booksRepository.save(newBook);
     return newBook;
+  }
+
+  async getAllBooks(page: number, limit: number, search: string, filter: any): Promise<Book[]> {
+    const query = this.booksRepository.createQueryBuilder('book');
+    // search by username/email
+    if (search) {
+      query.andWhere('book.username ILIKE :search OR user.email ILIKE :search', { search: `%${search}%` });
+    }
+    // filter
+    if (filter) {
+      Object.keys(filter).forEach(key => {
+        if (filter[key] !== undefined && filter[key] !== null) {
+          query.andWhere(`book.${key} = :${key}`, { [key]: filter[key] });
+        }
+      });
+    }
+    if (page && limit){
+      const offset = (page - 1)*limit;
+      query.limit(limit).offset(offset);
+    }
+    return await query.getMany();
   }
 }
 

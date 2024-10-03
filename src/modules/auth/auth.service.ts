@@ -29,9 +29,9 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDTO): Promise<User> {
-    const { username, email, password } = registerDto;
+    const { username, email, firstname, lastname, password } = registerDto;
 
-    if (!username || !email || !password) {
+    if (!firstname || !lastname || !username || !email || !password) {
       throw new BadRequestException('Missing required fields');
     }
 
@@ -50,6 +50,7 @@ export class AuthService {
       ...registerDto,
       password: hashed,
       isAdmin: false,
+      isActive: true
     });
     await this.usersRepository.save(newUser);
     return newUser;
@@ -62,6 +63,9 @@ export class AuthService {
     });
     if (!user) {
       throw new NotFoundException('invalid username');
+    }
+    if (user.isActive === false){
+      throw new UnauthorizedException('user is inactive');
     }
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
