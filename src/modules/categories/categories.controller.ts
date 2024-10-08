@@ -8,6 +8,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import {
@@ -15,7 +16,11 @@ import {
   GetAllCategoriesDTO,
   UpdateCategoryDTO,
 } from './dto/category.dto';
+import { AuthGuard } from '../auth/guards/auth.guard';
+import { RolesGuard } from '../auth/guards/role.guard';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('categories')
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
@@ -25,8 +30,9 @@ export class CategoriesController {
     return this.categoriesService.createCategory(payload);
   }
 
+  @UseGuards(RolesGuard)
   @Get()
-  async getAllUsers(@Query() payload: GetAllCategoriesDTO) {
+  async getAllCategories(@Query() payload: GetAllCategoriesDTO) {
     const categories = await this.categoriesService.getAllCategories(payload);
     return categories;
   }

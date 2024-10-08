@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { connectDB } from './config/connectDB';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { UsersModule } from './modules/users/users.module';
@@ -21,7 +19,6 @@ import { JwtModule } from '@nestjs/jwt';
     CategoriesModule,
     AuthModule,
   ],
-  controllers: [AppController],
-  providers: [JwtMiddleware, AppService],
+  providers: [JwtMiddleware],
 })
 export class AppModule {}

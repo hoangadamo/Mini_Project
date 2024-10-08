@@ -16,7 +16,9 @@ import {
 import { BooksService } from './books.service';
 import { CreateBookDto, GetAllBooksDTO, UpdateBookDTO } from './dto/book.dto';
 import { CustomRequest } from 'src/middlewares/jwt.middleware';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('books')
 @Controller('books')
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
