@@ -24,12 +24,12 @@ import { AdminMiddleware } from 'src/middlewares/admin.middleware';
 })
 export class BooksModule {
   // add middleware
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(JwtMiddleware)
-      .forRoutes({ path: 'books', method: RequestMethod.ALL });
-    consumer
-      .apply(AdminMiddleware)
-      .forRoutes({ path: 'books/approved/:id', method: RequestMethod.PUT }); // fix for me
-  }
+  // configure(consumer: MiddlewareConsumer) {
+  //   consumer
+  //     .apply(JwtMiddleware)
+  //     .forRoutes({ path: 'books', method: RequestMethod.ALL });
+  //   consumer
+  //     .apply(AdminMiddleware)
+  //     .forRoutes({ path: 'books/approved/:id', method: RequestMethod.PUT }); // fix for me
+  // }
 }

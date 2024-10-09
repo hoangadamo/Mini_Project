@@ -19,9 +19,9 @@ import { JwtModule } from '@nestjs/jwt';
 })
 export class UsersModule {
   // add middleware
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(JwtMiddleware)
-      .forRoutes({ path: 'users/*', method: RequestMethod.ALL });
-  }
+  // configure(consumer: MiddlewareConsumer) {
+  //   consumer
+  //     .apply(JwtMiddleware)
+  //     .forRoutes({ path: 'users/*', method: RequestMethod.ALL });
+  // }
 }
